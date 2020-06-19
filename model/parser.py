@@ -33,7 +33,8 @@ def find_id(text):
 
 
 class site_connection:
-    state_code_decryption = {-1: 'No_Internet_connection',
+    state_code_decryption = {0: 'Ok',
+                             -1: 'No_Internet_connection',
                              -2: 'No_Results_Found',
                              -3: 'Turing_Test',
                              -4: 'User_error',
