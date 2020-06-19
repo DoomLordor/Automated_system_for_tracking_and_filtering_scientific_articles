@@ -96,28 +96,31 @@ class article:
         while i > 0:
             text = text[i:]
             k = text.find("' title='Список публикаций этого автора'>")
-            j = text.find('</b></a>', k)
+            j = text.find('</a>', k)
             if all_author.get(text[35:k]) is None:
-                all_author[text[35:k]] = text[k + 44: j]
+                name = text[k + 41: j]
+                name = name.replace('<b>', '')
+                name = name.replace('</b>', '')
+                all_author[text[35:k]] = name
             i = text.find('<a href=\'author_items.asp?authorid=', j)
         self.authors = all_author
 
     def _find_article_type(self):
-        i = self._text.find('???:&nbsp;<font color=#00008f>')
+        i = self._text.find('Тип:&nbsp;<font color=#00008f>')
         j = self._text.find('</font>', i)
         self.article_type = self._text[i + 30: j]
 
     def _find_journal(self):
         i = self._text.find('\n<a href="contents.asp?id=')
-        k = self._text.find('" title="Оглавления выпусков этого журнала?">', i)
+        k = self._text.find('" title="Оглавления выпусков этого журнала">', i)
         j = self._text.find('</a>', k)
-        self.journal = {self._text[i + 26: k]: self._text[k + 44: j]}
+        self.journal = [self._text[i + 26: k], self._text[k + 44: j]]
 
     def _find_conf(self):
         i = self._text.find('<a href="item.asp?id=')
         k = self._text.find('">', i)
         j = self._text.find('</a>', k)
-        self.journal = {self._text[i + 21: k]: self._text[k + 2: j]}
+        self.journal = [self._text[i + 21: k], self._text[k + 2: j]]
 
 
 class morph:
@@ -140,7 +143,7 @@ class morph:
 
 
 def lemmatization_text(text):
-    text = removing_special_characters(text)
+    text = removing_special_characters(text)[0]
     morph_analyzer = morph()
     word_dict = {}
     for word in text.split():
@@ -149,7 +152,7 @@ def lemmatization_text(text):
             word_dict[lemm] = 1
         else:
             word_dict[lemm] += 1
-    if word_dict[''] is not None:
+    if word_dict.get('') is not None:
         word_dict.pop('')
     word_dict = delete_stop_word(word_dict, dictionary_of_stop_words)
     word_dict = delete_english_word(word_dict)
