@@ -1,6 +1,10 @@
 import os
 from pickle import load, dump
 from pymorphy2 import MorphAnalyzer
+from model.text_analis import removing_special_characters, delete_english_word, delete_stop_word, sum_dict
+
+with open('setting\\stop_word.stopdict', 'rb') as f:
+    dictionary_of_stop_words = load(f)
 
 
 class list_article(list):
@@ -18,6 +22,12 @@ class list_article(list):
             return []
         else:
             return [val.address for val in self]
+
+    def all_word_bag(self):
+        if self.__len__() == 0:
+            return []
+        else:
+            return [val.word_bag for val in self]
 
 
 class article:
@@ -51,7 +61,10 @@ class article:
         self.word_bag_create()
 
     def word_bag_create(self):
-        pass
+        annotation_dict = lemmatization_text(self.annotation)
+        keywords_dict = lemmatization_text(self.keywords)
+        name_dict = lemmatization_text(self.name)
+        self.word_bag = sum_dict(annotation_dict, keywords_dict, name_dict)
 
     def _find_name(self):
         i = self._text.find('<title>')
@@ -127,19 +140,18 @@ class morph:
 
 
 def lemmatization_text(text):
-    pass
+    text = removing_special_characters(text)
+    morph_analyzer = morph()
+    word_dict = {}
+    for word in text.split():
+        lemm = morph_analyzer.normal_form(word)
+        if word_dict.get(lemm) is None:
+            word_dict[lemm] = 1
+        else:
+            word_dict[lemm] += 1
+    if word_dict[''] is not None:
+        word_dict.pop('')
+    word_dict = delete_stop_word(word_dict, dictionary_of_stop_words)
+    word_dict = delete_english_word(word_dict)
+    return word_dict
 
-
-def removing_special_characters(input_text):
-    special_characters = '–«»;()"-.,:\t•—\n'
-    for char in special_characters:
-        for i, word in enumerate(input_text):
-            if char in word:
-                input_text[i] = word.replace(char, ' ')
-    return input_text
-
-
-# даление спец символов
-
-with open("setting\\stop_word.txt") as f:
-    dictionary_of_stop_words = f.read().upper().split('\n')
