@@ -21,7 +21,7 @@ def find_end_num(text):
     j = st.find('">В&nbsp;конец</a>', i)
     if i == -1:
         return 0
-    return int(st[i + 36: j])
+    return int(st[i + 35: j])
 
 
 def find_id(text):
@@ -164,20 +164,21 @@ class site_connection:
             self._end_num = page_end
 
         if page_start == 1:
+            print('Номер страницы', 1)
             self.page_parser(site.text)
-            if not self.state_code:
+            if self.state_code:
                 return False
             page_start += 1
 
         for i in range(page_start, self._end_num + 1):
             print('Номер страницы', i)
             site = self._session.post("https://elibrary.ru/query_results.asp", params={'pagenum': str(i)})
-            self._session_status_code_check()
-            if not self.state_code:
+            self._session_status_code_check(site.status_code)
+            if self.state_code:
                 break
             sleep(random() * 3)
             self.page_parser(site.text)
-            if not self.state_code:
+            if self.state_code:
                 return False
             self.num_page = i
 
@@ -186,19 +187,24 @@ class site_connection:
 
         articles_address = find_id(page_text)
 
+        all_address = self.articles.all_address()
+
         for address in articles_address:
+            if address in all_address:
+                continue
             site = self._session.post('https://elibrary.ru/item.asp', params={'id': address})
-            self._session_status_code_check()
-            if not self.state_code:
+            self._session_status_code_check(site.status_code)
+            if self.state_code:
                 break
             self.articles.append(article(site.text, address))
             sleep(random() * 3)
             if self.articles[-1].name == 'Тест Тьюринга':
                 self.state_code = -3
                 break
+            print(len(self.articles))
 
-    def _session_status_code_check(self):
-        if 400 <= self._session.status_code < 500:
+    def _session_status_code_check(self, code):
+        if 400 <= code < 500:
             self.state_code = -4
-        elif self._session.status_code >= 500:
+        elif code >= 500:
             self.state_code = -5
