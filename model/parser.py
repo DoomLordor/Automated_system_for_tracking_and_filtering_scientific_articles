@@ -1,6 +1,8 @@
+import os
 from time import sleep
 from re import findall
 import requests as req
+from pickle import load
 from random import random
 from model.text_processing import article, list_article
 
@@ -39,7 +41,8 @@ class site_connection:
                              -3: 'Turing_Test',
                              -4: 'User_error',
                              -5: 'Server_Error',
-                             -6: 'search_option_data is None'}
+                             -6: 'search_option_data is None',
+                             -7: 'Site block program'}
 
     _issues_params_list = ['all', 'm1', 'm3', 'm6', 'm12']
 
@@ -67,6 +70,10 @@ class site_connection:
     articles = list_article()
 
     num_page = 1
+    if os.path.exists('setting\\block.bk'):
+        with open('setting\\block.bk', 'rb') as f:
+            block_site = load(f)
+
 
     def __init__(self):
         # Иннициализация сессии
@@ -152,6 +159,11 @@ class site_connection:
 
         site = self._session.post("https://elibrary.ru/query_results.asp", params=self.search_option_data)
 
+        self.block_site(site.text)
+
+        if self.state_code:
+            return False
+
         self._end_num = find_end_num(site.text)
 
         if not self._end_num:
@@ -195,6 +207,7 @@ class site_connection:
             if address in all_address:
                 continue
             site = self._session.post('https://elibrary.ru/item.asp', params={'id': address})
+            self.block_site(site.text)
             self._session_status_code_check(site.status_code)
             if self.state_code:
                 break
@@ -210,3 +223,7 @@ class site_connection:
             self.state_code = -4
         elif code >= 500:
             self.state_code = -5
+
+    def _check_block_site(self, text_site):
+        if text_site == self.block_site:
+            self.state_code = -7
