@@ -2,7 +2,7 @@ from time import sleep
 from re import findall
 import requests as req
 from random import random
-from model.text_processing import article
+from model.text_processing import article, list_article
 
 
 def internet_connection(func):
@@ -63,7 +63,7 @@ class site_connection:
 
     state_code = 0
 
-    articles = []
+    articles = list_article()
 
     def __init__(self):
         # Иннициализация сессии
@@ -138,14 +138,14 @@ class site_connection:
         self.search_option_data = data
 
     @internet_connection
-    def getting_these_articles(self, page_start=1, clean_articles=False):
+    def getting_these_articles(self, page_start=1, page_end=1000, clean_articles=False):
         # Получение
         if self.search_option_data is None:
             self.state_code = -6
             return False
 
         if clean_articles:
-            self.articles = []
+            self.articles = list_article()
 
         site = self._session.post("https://elibrary.ru/query_results.asp", params=self.search_option_data)
 
@@ -155,8 +155,11 @@ class site_connection:
             self.state_code = -2
             return False
 
-        if self._end_num > 100:
-            self._end_num = 100
+        if page_end > 1000:
+            page_end = 1000
+
+        if self._end_num > page_end:
+            self._end_num = page_end
 
         if page_start == 1:
             self.page_parser(site.text)
