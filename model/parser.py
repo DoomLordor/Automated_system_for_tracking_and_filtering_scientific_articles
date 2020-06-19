@@ -65,6 +65,8 @@ class site_connection:
 
     articles = list_article()
 
+    num_page = 1
+
     def __init__(self):
         # Иннициализация сессии
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0'}
@@ -174,11 +176,10 @@ class site_connection:
             if not self.state_code:
                 break
             sleep(random() * 3)
-            flag = self.page_parser(site.text)
-            if flag is not None:
-                self.state_code = -1
+            self.page_parser(site.text)
             if not self.state_code:
                 return False
+            self.num_page = i
 
     @internet_connection
     def page_parser(self, page_text):
