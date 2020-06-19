@@ -191,6 +191,7 @@ class site_connection:
         all_address = self.articles.all_address()
 
         for address in articles_address:
+            print(len(self.articles))
             if address in all_address:
                 continue
             site = self._session.post('https://elibrary.ru/item.asp', params={'id': address})
@@ -200,9 +201,9 @@ class site_connection:
             self.articles.append(article(site.text, address))
             sleep(random() * 3)
             if self.articles[-1].name == 'Тест Тьюринга':
+                self.articles.pop()
                 self.state_code = -3
                 break
-            print(len(self.articles))
 
     def _session_status_code_check(self, code):
         if 400 <= code < 500:
