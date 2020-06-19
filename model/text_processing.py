@@ -3,8 +3,11 @@ from pickle import load, dump
 from pymorphy2 import MorphAnalyzer
 from model.text_analis import removing_special_characters, delete_english_word, delete_stop_word, sum_dict
 
-with open('setting\\stop_word.stopdict', 'rb') as f:
-    dictionary_of_stop_words = load(f)
+morph_dict_path = 'setting\\morph.md'
+
+stop_word_path = 'setting\\stop_word.sd'
+
+stop_word_text_file_path = 'setting\\stop_word.txt'
 
 
 class list_article(list):
@@ -85,7 +88,8 @@ class article:
 
     def _find_annotation(self):
         i = self._text.find(
-            '<div id="abstract1" style="width:504px; border:0; margin:0; padding:0; text-align:left;"><p align=justify>')
+            '<div id="abstract1" style="width:504px; border:0;'
+            + ' margin:0; padding:0; text-align:left;"><p align=justify>')
         j = self._text.find('</div>', i)
         self.annotation = self._text[i + 106: j]
 
@@ -127,12 +131,17 @@ class morph:
     _morph_dict = {}
     _analyzer = MorphAnalyzer()
 
-    def load_morph_dict(self, path):
-        if os.path.exists(path):
+    def __init__(self, path=morph_dict_path):
+        self.load_morph_dict(path)
+
+    def load_morph_dict(self, path=morph_dict_path):
+        if os.path.exists(path) and path.endswith('.md'):
             with open(path, 'rb') as f:
                 self._morph_dict = load(f)
 
-    def dump_morph_dict(self, path):
+    def dump_morph_dict(self, path=morph_dict_path):
+        if not path.endswith('.md'):
+            path = path + '.md'
         with open(path, 'wb') as f:
             dump(self._morph_dict, f)
 
@@ -142,9 +151,28 @@ class morph:
         return self._morph_dict[word]
 
 
+class stop_words:
+    def __init__(self, path=stop_word_path):
+        self.stop_words = []
+        self.load_dict_stop_word(path)
+
+    def load_dict_stop_word(self, path=stop_word_path):
+        if os.path.exists(path) and path.endswith('.sd'):
+            with open(path, 'rb') as f:
+                self.stop_words = load(f)
+
+    def load_dict_stop_word_text_file(self, path=stop_word_text_file_path):
+        if os.path.exists(path) and path.endswith('.txt'):
+            with open(path) as f:
+                self.stop_words = f.read().upper().split('\n')
+            with open(path, 'wb') as f:
+                dump(self.stop_words, f)
+
+
 def lemmatization_text(text):
-    text = removing_special_characters(text)[0]
     morph_analyzer = morph()
+    list_stop_words = stop_words()
+    text = removing_special_characters(text)[0]
     word_dict = {}
     for word in text.split():
         lemm = morph_analyzer.normal_form(word)
@@ -154,7 +182,7 @@ def lemmatization_text(text):
             word_dict[lemm] += 1
     if word_dict.get('') is not None:
         word_dict.pop('')
-    word_dict = delete_stop_word(word_dict, dictionary_of_stop_words)
+    word_dict = delete_stop_word(word_dict, list_stop_words.stop_words)
     word_dict = delete_english_word(word_dict)
+    morph_analyzer.dump_morph_dict(morph_dict_path)
     return word_dict
-
