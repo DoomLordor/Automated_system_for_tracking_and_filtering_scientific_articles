@@ -28,10 +28,14 @@ def find_end_num(text):
 
 def find_id(text):
     id_pattern = r'<tr valign=middle bgcolor=#f5f5f5 id="a[\d]+">'
+    id_pattern2 = r'<tr valign=middle id="arw[\d]+">'
     all_id = findall(id_pattern, text)
     for i, val in enumerate(all_id):
         all_id[i] = val[39:-2]
-    return all_id
+    all_id2 = findall(id_pattern2, text)
+    for i, val in enumerate(all_id2):
+        all_id2[i] = val[25:-2]
+    return all_id or all_id2
 
 
 class site_connection:
