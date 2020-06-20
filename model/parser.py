@@ -70,10 +70,7 @@ class site_connection:
     articles = list_article()
 
     num_page = 1
-    if os.path.exists('setting\\block.bk'):
-        with open('setting\\block.bk', 'rb') as f:
-            block_site = load(f)
-
+    block_site = 'Из-за нарушения правил пользования сайтом eLIBRARY.RU'
 
     def __init__(self):
         # Иннициализация сессии
@@ -159,7 +156,7 @@ class site_connection:
 
         site = self._session.post("https://elibrary.ru/query_results.asp", params=self.search_option_data)
 
-        self.block_site(site.text)
+        self._check_block_site(site.text)
 
         if self.state_code:
             return False
@@ -186,6 +183,7 @@ class site_connection:
         for i in range(page_start, self._end_num + 1):
             print('Номер страницы', i)
             site = self._session.post("https://elibrary.ru/query_results.asp", params={'pagenum': str(i)})
+            self._check_block_site(site.text)
             self._session_status_code_check(site.status_code)
             if self.state_code:
                 break
@@ -207,7 +205,7 @@ class site_connection:
             if address in all_address:
                 continue
             site = self._session.post('https://elibrary.ru/item.asp', params={'id': address})
-            self.block_site(site.text)
+            self._check_block_site(site.text)
             self._session_status_code_check(site.status_code)
             if self.state_code:
                 break
@@ -225,5 +223,5 @@ class site_connection:
             self.state_code = -5
 
     def _check_block_site(self, text_site):
-        if text_site == self.block_site:
+        if self.block_site in text_site:
             self.state_code = -7
