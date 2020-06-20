@@ -1,7 +1,7 @@
 import os
 from pickle import load, dump
 from pymorphy2 import MorphAnalyzer
-from model.text_analis import removing_special_characters, delete_english_word, delete_stop_word, sum_dict
+import model.text_analis as ta
 
 morph_dict_path = 'setting\\morph.md'
 
@@ -67,7 +67,7 @@ class article:
         annotation_dict = lemmatization_text(self.annotation)
         keywords_dict = lemmatization_text(self.keywords)
         name_dict = lemmatization_text(self.name)
-        self.word_bag = sum_dict(annotation_dict, keywords_dict, name_dict)
+        self.word_bag = ta.sum_dict(annotation_dict, keywords_dict, name_dict)
 
     def _find_name(self):
         i = self._text.find('<title>')
@@ -75,23 +75,29 @@ class article:
         self.name = self._text[i + 7: j]
 
     def _find_keywords(self):
-        all_keywords = []
-        i = self._text.find('<a href=\"keyword_items.asp?id=')
-        text = self._text
-        while i > 0:
-            text = text[i:]
-            k = text.find('">')
-            j = text.find('</a>', k)
-            all_keywords.append(text[k + 2: j])
-            i = text.find('<a href=\"keyword_items.asp?id=', j)
-        self.keywords = ' '.join(all_keywords)
+        if 'КЛЮЧЕВЫЕ СЛОВА' in self._text:
+            all_keywords = []
+            i = self._text.find('<a href=\"keyword_items.asp?id=')
+            text = self._text
+            while i > 0:
+                text = text[i:]
+                k = text.find('">')
+                j = text.find('</a>', k)
+                all_keywords.append(text[k + 2: j])
+                i = text.find('<a href=\"keyword_items.asp?id=', j)
+            self.keywords = ' '.join(all_keywords)
+        else:
+            self.keywords = ''
 
     def _find_annotation(self):
-        i = self._text.find(
-            '<div id="abstract1" style="width:504px; border:0;'
-            + ' margin:0; padding:0; text-align:left;"><p align=justify>')
-        j = self._text.find('</div>', i)
-        self.annotation = self._text[i + 106: j]
+        if 'АННОТАЦИЯ' in self._text:
+            i = self._text.find(
+                '<div id="abstract1" style="width:504px; border:0;'
+                + ' margin:0; padding:0; text-align:left;"><p align=justify>')
+            j = self._text.find('</div>', i)
+            self.annotation = self._text[i + 106: j]
+        else:
+            self.annotation = ''
 
     def _find_authors(self):
         all_author = {}
@@ -174,7 +180,7 @@ def lemmatization_text(text, morph_analyzer=None, list_stop_words=None):
         morph_analyzer = morph()
     if list_stop_words is None:
         list_stop_words = stop_words()
-    text = removing_special_characters(text)[0]
+    text = ta.removing_special_characters(text)[0]
     word_dict = {}
     for word in text.split():
         lemm = morph_analyzer.normal_form(word)
@@ -184,7 +190,8 @@ def lemmatization_text(text, morph_analyzer=None, list_stop_words=None):
             word_dict[lemm] += 1
     if word_dict.get('') is not None:
         word_dict.pop('')
-    word_dict = delete_stop_word(word_dict, list_stop_words.stop_words)
-    word_dict = delete_english_word(word_dict)
+    word_dict = ta.delete_stop_word(word_dict, list_stop_words.stop_words)
+    word_dict = ta.delete_english_word(word_dict)
+    word_dict = ta.delete_numbers(word_dict)
     morph_analyzer.dump_morph_dict(morph_dict_path)
     return word_dict
