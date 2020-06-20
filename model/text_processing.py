@@ -51,18 +51,17 @@ class article:
                   'статья в сборнике статей', 'сборник тезисов конференции']
 
     def __init__(self, text_publication=None, address=None):
+        self._text = None
+        self.address = None
+        self.name = None
+        self.keywords = None
+        self.annotation = None
+        self.authors = None
+        self.article_type = None
+        self.journal = None
+        self.word_bag = None
         if text_publication is not None and address is not None:
             self.search_on_page(text_publication, address)
-        else:
-            self._text = None
-            self.address = None
-            self.name = None
-            self.keywords = None
-            self.annotation = None
-            self.authors = None
-            self.article_type = None
-            self.journal = None
-            self.word_bag = None
 
     def search_on_page(self, text_publication, address):
         self.address = address
