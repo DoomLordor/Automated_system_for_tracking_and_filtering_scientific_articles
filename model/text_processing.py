@@ -85,19 +85,16 @@ class article:
         self.name = self._text[i + 7: j]
 
     def _find_keywords(self):
-        if 'КЛЮЧЕВЫЕ СЛОВА' in self._text:
-            all_keywords = []
-            i = self._text.find('<a href=\"keyword_items.asp?id=')
-            text = self._text
-            while i > 0:
-                text = text[i:]
-                k = text.find('">')
-                j = text.find('</a>', k)
-                all_keywords.append(text[k + 2: j])
-                i = text.find('<a href=\"keyword_items.asp?id=', j)
-            self.keywords = ' '.join(all_keywords)
-        else:
-            self.keywords = ''
+        all_keywords = []
+        i = self._text.find('<a href=\"keyword_items.asp?id=')
+        text = self._text
+        while i > 0:
+            text = text[i:]
+            k = text.find('">')
+            j = text.find('</a>', k)
+            all_keywords.append(text[k + 2: j])
+            i = text.find('<a href=\"keyword_items.asp?id=', j)
+        self.keywords = ' '.join(all_keywords)
 
     def _find_annotation(self):
         if 'АННОТАЦИЯ' in self._text:
