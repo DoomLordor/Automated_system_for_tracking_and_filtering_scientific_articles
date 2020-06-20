@@ -201,16 +201,18 @@ class site_connection:
         all_address = self.articles.all_address()
 
         for address in articles_address:
-            print(len(self.articles))
             if address in all_address:
                 continue
+            print(len(self.articles))
             site = self._session.post('https://elibrary.ru/item.asp', params={'id': address})
             self._check_block_site(site.text)
             self._session_status_code_check(site.status_code)
             if self.state_code:
                 break
             self.articles.append(article(site.text, address))
-            sleep(random() * 3)
+            print('sleep_start')
+            sleep(random() * 10)
+            print('sleep_end')
             if self.articles[-1].name == 'Тест Тьюринга':
                 self.articles.pop()
                 self.state_code = -3
