@@ -44,6 +44,12 @@ class list_article(list):
 
 
 class article:
+    _journal_type = ['статья в журнале - научная статья', 'статья в журнале - материалы конференции',
+                     'статья в журнале - обзорная статья', 'статья в журнале - редакторская заметка',
+                     'статья в журнале - краткое сообщение']
+    _conf_type = ['статья в сборнике трудов конференции', 'сборник трудов конференции', 'тезисы доклада на конференции',
+                  'статья в сборнике статей', 'сборник тезисов конференции']
+
     def __init__(self, text_publication=None, address=None):
         if text_publication is not None and address is not None:
             self.search_on_page(text_publication, address)
@@ -66,9 +72,9 @@ class article:
         self._find_annotation()
         self._find_authors()
         self._find_article_type()
-        if self.article_type == 'статья в журнале - научная статья':
+        if self.article_type in self._journal_type:
             self._find_journal()
-        elif self.article_type == 'статья в сборнике трудов конференции':
+        elif self.article_type in self._conf_type:
             self._find_conf()
         del self._text
         self.word_bag_create()
