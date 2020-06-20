@@ -32,6 +32,16 @@ class list_article(list):
         else:
             return [val.word_bag for val in self]
 
+    def append(self, val):
+        if type(val) is not article:
+            raise TypeError('must be article, not {}'.format(type(val).__name__))
+        super().append(val)
+
+    def __setitem__(self, key, value):
+        if type(value) is not article:
+            raise TypeError('must be article, not {}'.format(type(value).__name__))
+        super().__setitem__(key, value)
+
 
 class article:
     def __init__(self, text_publication=None, address=None):
