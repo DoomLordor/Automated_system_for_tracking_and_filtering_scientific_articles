@@ -55,7 +55,7 @@ class site_connection:
                                 'where_references': False,
                                 'where_fulltext': False,
                                 'type_article': True,
-                                'type_book': True,
+                                'type_book': False,
                                 'type_conf': True,
                                 'type_preprint': False,
                                 'type_disser': False,
