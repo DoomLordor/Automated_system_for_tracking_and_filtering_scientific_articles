@@ -84,7 +84,7 @@ class article:
         del self._text
         self.word_bag_create()
 
-    def word_bag_create(self):
+    def word_bag_create(self, morph_analyzer=None, list_stop_words=None):
         annotation_dict = lemmatization_text(self.annotation)
         keywords_dict = lemmatization_text(self.keywords)
         name_dict = lemmatization_text(self.name)
