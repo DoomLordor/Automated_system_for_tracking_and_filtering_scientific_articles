@@ -1,8 +1,6 @@
-import os
 from time import sleep
 from re import findall
 import requests as req
-from pickle import load
 from random import random
 from model.text_processing import article, list_article
 
