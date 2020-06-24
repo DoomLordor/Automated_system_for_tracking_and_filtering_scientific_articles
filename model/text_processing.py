@@ -145,10 +145,13 @@ class article:
         self.journal = [self._text[i + 26: k], self._text[k + 44: j]]
 
     def _find_conf(self):
-        i = self._text.find('<a href="item.asp?id=')
-        k = self._text.find('">', i)
-        j = self._text.find('</a>', k)
-        self.journal = [self._text[i + 21: k], self._text[k + 2: j]]
+        if 'ИСТОЧНИК:' in self._text:
+            i = self._text.find('<a href="item.asp?id=')
+            k = self._text.find('">', i)
+            j = self._text.find('</a>', k)
+            self.journal = [self._text[i + 21: k], self._text[k + 2: j]]
+        else:
+            self.journal = ['', '']
 
 
 class morph:
