@@ -62,13 +62,15 @@ def partition2(input_text, not_common=False):
 # разделение списка на ключевые слова
 
 def removing_special_characters(input_text):
-    special_characters = '–«»;()"-.,:\t•—\n'
     if type(input_text) is str:
         input_text = [input_text]
-    for char in special_characters:
-        for i, word in enumerate(input_text):
-            if char in word:
-                input_text[i] = word.replace(char, ' ')
+    for i, word in enumerate(input_text):
+        sp = set(re.findall(r'\W', word))
+        if ' ' in sp:
+            sp.remove(' ')
+        for char in sp:
+            word = word.replace(char, ' ')
+            input_text[i] = word
     return input_text
 
 
@@ -82,6 +84,7 @@ def delete_english_word(keywords):
         if re.search(pattern, word):
             del keywords[word]
     return keywords
+
 
 # удаление английских слов из словаря
 
@@ -349,7 +352,7 @@ def k_means_plus_plus(number_of_clusters, keywords, seed_now=0):
                 if length_now < length:
                     length = length_now
             length_all.append(length)
-        probability = random()*sum(length_all)
+        probability = random() * sum(length_all)
         i = 0
         sum_length = length_all[0]
         while sum_length < probability:
@@ -357,6 +360,8 @@ def k_means_plus_plus(number_of_clusters, keywords, seed_now=0):
             sum_length += length_all[i]
         means.append(keywords[i])
     return means
+
+
 # Поиск начальных центройдов методом k-means++
 
 
@@ -371,6 +376,8 @@ def kwords_annotation(input_text, kwords=False, annotation=False):
             elif kwords and not annotation:
                 input_text[i] = text[0] + '\n' + text[2] + '\n'
     return input_text
+
+
 # Удаление ключевых слов, аннотаций из текста
 
 
