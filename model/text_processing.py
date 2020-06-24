@@ -32,6 +32,12 @@ class list_article(list):
         else:
             return [val.word_bag for val in self]
 
+    def all_journal(self):
+        if self.__len__() == 0:
+            return []
+        else:
+            return [val.journal[1] for val in self]
+
     def append(self, val):
         if type(val) is not article:
             raise TypeError('must be article, not {}'.format(type(val).__name__))
