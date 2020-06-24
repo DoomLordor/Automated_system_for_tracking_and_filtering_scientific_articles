@@ -142,7 +142,9 @@ class article:
         i = self._text.find('\n<a href="contents.asp?id=')
         k = self._text.find('" title="Оглавления выпусков этого журнала">', i)
         j = self._text.find('</a>', k)
-        self.journal = [self._text[i + 26: k], self._text[k + 44: j]]
+        name = self._text[k + 44: j]
+        name = name.replace('\n', '').replace('\r', '')
+        self.journal = [self._text[i + 26: k], name]
 
     def _find_conf(self):
         if 'ИСТОЧНИК:' in self._text:
