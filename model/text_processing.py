@@ -165,8 +165,9 @@ class morph:
 
     def load_morph_dict(self, path=morph_dict_path):
         if os.path.exists(path) and path.endswith('.md'):
-            with open(path, 'rb') as f:
-                self._morph_dict = load(f)
+            if os.path.getsize(path):
+                with open(path, 'rb') as f:
+                    self._morph_dict = load(f)
 
     def dump_morph_dict(self, path=morph_dict_path):
         if not path.endswith('.md'):
