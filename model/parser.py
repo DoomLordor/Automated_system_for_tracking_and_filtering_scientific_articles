@@ -72,8 +72,10 @@ class site_connection:
     articles = list_article()
 
     num_page = 1
+
     block_site = 'Из-за нарушения правил пользования сайтом eLIBRARY.RU'
 
+    @internet_connection
     def __init__(self):
         # Иннициализация сессии
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0'}
@@ -84,6 +86,7 @@ class site_connection:
 
         self._session.get('https://www.elibrary.ru/defaultx.asp')
 
+    @internet_connection
     def login(self, login=None, password=None):
         # Вход в систему
         auth = None
