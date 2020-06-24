@@ -199,11 +199,11 @@ class stop_words:
                 dump(self.stop_words, f)
 
 
-def lemmatization_text(text, morph_analyzer=None, list_stop_words=None):
-    if morph_analyzer is None:
-        morph_analyzer = morph()
-    if list_stop_words is None:
-        list_stop_words = stop_words()
+Morph = morph()
+Stop_Words = stop_words()
+
+
+def lemmatization_text(text, morph_analyzer=Morph, list_stop_words=Stop_Words):
     text = ta.removing_special_characters(text)[0]
     word_dict = {}
     for word in text.split():
