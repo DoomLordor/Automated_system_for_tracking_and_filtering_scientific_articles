@@ -27,7 +27,7 @@ def find_id(text):
     return all_id
 
 
-class site_connection:
+class elibrary_connection:
     state_code_decryption = {0: 'Ok',
                              -1: 'No_Internet_connection',
                              -2: 'No_Results_Found',
