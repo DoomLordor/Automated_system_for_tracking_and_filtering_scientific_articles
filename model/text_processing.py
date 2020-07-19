@@ -58,7 +58,7 @@ class list_article(list):
 class article:
 
     def __init__(self, text_publication=None, address=None, site_tupe=None):
-        self.address = None
+        self.address = address
         self.name = None
         self.keywords = None
         self.annotation = None
@@ -67,12 +67,12 @@ class article:
         self.journal = None
         self.year = None
         self.word_bag = None
+        self.site_type = site_tupe
         if text_publication is not None and address is not None:
             if site_tupe == 'elibrary':
-                self.search_on_elibrary_page(text_publication, address)
+                self.search_on_elibrary_page(text_publication)
 
-    def search_on_elibrary_page(self, text_publication, address):
-        self.address = address
+    def search_on_elibrary_page(self, text_publication):
         res = elibrary_find_text(text_publication)
         self.name = res[0]
         self.keywords = res[1]
@@ -118,7 +118,7 @@ def elibrary_find_text(text):
         res.append('')
     # поиск авторов
     all_author = {}
-    i = text.find('<a href=\'author_items.asp?authorid=')
+    i = text.find("<a href='author_items.asp?authorid=")
     temp_text = text
     while i > 0:
         temp_text = temp_text[i:]
@@ -128,13 +128,14 @@ def elibrary_find_text(text):
             name = temp_text[k + 41: j]
             name = name.replace('<b>', '')
             name = name.replace('</b>', '')
-            all_author[text[35:k]] = name
-        i = text.find('<a href=\'author_items.asp?authorid=', j)
+            all_author[temp_text[35:k]] = name
+        i = temp_text.find('<a href=\'author_items.asp?authorid=', j)
     res.append(all_author)
     # тип статьи
     i = text.find('Тип:&nbsp;<font color=#00008f>')
     j = text.find('</font>', i)
     res.append(text[i + 30: j])
+
     if res[-1] in journal_type:
         i = text.find('\n<a href="contents.asp?id=')
         k = text.find('" title="Оглавления выпусков этого журнала">', i)
@@ -144,7 +145,8 @@ def elibrary_find_text(text):
         res.append([text[i + 26: k], name])
     elif res[-1] in conf_type:
         if 'ИСТОЧНИК:' in text:
-            i = text.find('<a href="item.asp?id=')
+            start = text.find('ИСТОЧНИК:')
+            i = text.find('<a href="item.asp?id=', start)
             k = text.find('">', i)
             j = text.find('</a>', k)
             res.append([text[i + 21: k], text[k + 2: j]])
@@ -153,7 +155,7 @@ def elibrary_find_text(text):
     # поиск года
     i = text.find('Год:')
     j = text.find('</font>', i)
-    res.append(text[i + 27:j])
+    res.append(text[i + 30:j])
     return res
 
 
