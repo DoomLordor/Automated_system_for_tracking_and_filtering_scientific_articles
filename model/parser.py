@@ -172,13 +172,6 @@ class site_connection:
         if self._end_num > page_end:
             self._end_num = page_end
 
-        if page_start == 1:
-            print('Номер страницы', 1)
-            self.page_parser(site.text)
-            if self.state_code:
-                return False
-            page_start += 1
-
         for i in range(page_start, self._end_num + 1):
             print('Номер страницы', i)
             site = self._session.post("https://elibrary.ru/query_results.asp", params={'pagenum': str(i)})
