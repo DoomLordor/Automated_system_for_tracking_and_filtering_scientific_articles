@@ -206,13 +206,11 @@ class site_connection:
             if self.state_code:
                 break
             self.articles.append(article(site.text, address))
-            print('sleep_start')
-            sleep(random() * 10)
-            print('sleep_end')
             if self.articles[-1].name == 'Тест Тьюринга':
                 self.articles.pop()
                 self.state_code = -3
-                break
+            print('sleep')
+            sleep(random() * 10)
 
     def _session_status_code_check(self, code):
         if 400 <= code < 500:
