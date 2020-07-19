@@ -174,7 +174,7 @@ class site_connection:
 
         for i in range(page_start, self._end_num + 1):
             print('Номер страницы', i)
-            site = self._session.post("https://elibrary.ru/query_results.asp", params={'pagenum': str(i)})
+            site = self._session.post(url, params={'pagenum': str(i)})
             self._check_block_site(site.text)
             self._session_status_code_check(site.status_code)
             if self.state_code:
