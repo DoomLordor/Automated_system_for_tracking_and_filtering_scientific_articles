@@ -189,8 +189,9 @@ class site_connection:
             if path is not None:
                 with open(path, 'rb') as f:
                     dump(self.articles, f)
-            print('Big sleep')
-            sleep(150)
+            if self._end_num != i:
+                print('Big sleep')
+                sleep(150)
 
     @internet_connection
     def page_parser(self, page_text):
