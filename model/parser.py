@@ -150,19 +150,7 @@ class site_connection:
 
         data['order'] = order
 
-        self.search_option_data = data
-
-    @internet_connection
-    def getting_these_articles(self, page_start=1, page_end=1000, clean_articles=False):
-        # Получение
-        if self.search_option_data is None:
-            self.state_code = -6
-            return False
-
-        if clean_articles:
-            self.articles = list_article()
-
-        site = self._session.post("https://elibrary.ru/query_results.asp", params=self.search_option_data)
+        site = self._session.post("https://elibrary.ru/query_results.asp", params=data)
 
         self._check_block_site(site.text)
 
