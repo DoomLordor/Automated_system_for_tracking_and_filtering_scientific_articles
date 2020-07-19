@@ -65,6 +65,8 @@ class site_connection:
 
     block_site = 'Из-за нарушения правил пользования сайтом eLIBRARY.RU'
 
+    captcha = 'Тест Тьюринга'
+
     def internet_connection(self, func):
         def wrapper(*arg, **keyword):
             try:
@@ -149,6 +151,8 @@ class site_connection:
 
         site = self._session.post("https://elibrary.ru/query_results.asp", params=data)
 
+        self._check_captcha(site.text)
+
         self._check_block_site(site.text)
 
         if self.state_code:
@@ -172,6 +176,7 @@ class site_connection:
         for i in range(page_start, self._end_num + 1):
             print('Номер страницы', i)
             site = self._session.post(url, params={'pagenum': str(i)})
+            self._check_captcha(site.text)
             self._check_block_site(site.text)
             self._session_status_code_check(site.status_code)
             if self.state_code:
@@ -201,14 +206,16 @@ class site_connection:
             site = self._session.post('https://elibrary.ru/item.asp', params={'id': address})
             self._check_block_site(site.text)
             self._session_status_code_check(site.status_code)
+            self._check_captcha(site.text)
             if self.state_code:
                 break
-            self.articles.append(article(site.text, address))
-            if self.articles[-1].name == 'Тест Тьюринга':
-                self.articles.pop()
-                self.state_code = -3
+            self.articles.append(article(site.text, address, 'elibrary'))
             print('sleep')
             sleep(random() * 10)
+
+    def _check_captcha(self, text):
+        if self.captcha in text:
+            self.state_code = -3
 
     def _session_status_code_check(self, code):
         if 400 <= code < 500:
