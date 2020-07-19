@@ -97,8 +97,9 @@ class site_connection:
                     'password': password}
         self._session.get('https://www.elibrary.ru/defaultx.asp', params=auth)
 
-    def search_option(self, text, search_option_data=None, begin_year=0, end_year=0, issues="all", orderby="date",
-                      order="rev"):
+    @internet_connection
+    def search_articles(self, text, search_option_data=None, begin_year=0, end_year=0, issues="all", orderby="date",
+                        order='rev'):
         # ввод параметров поиска
         if search_option_data is None:
             search_option_data = self.search_option_data_blank
