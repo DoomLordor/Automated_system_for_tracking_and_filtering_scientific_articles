@@ -8,8 +8,7 @@ from bs4 import BeautifulSoup
 
 
 def find_end_num(text):
-    end_num_pattern = r'<a href="query_results\.asp\?pagenum=[\d]+">В&nbsp;конец</a>'
-    st = findall(end_num_pattern, text)[0]
+    st = findall(r'<a href="query_results\.asp\?pagenum=[\d]+">В&nbsp;конец</a>', text)[0]
     i = st.find('<a href="query_results.asp?pagenum=')
     j = st.find('">В&nbsp;конец</a>', i)
     if i == -1:
