@@ -7,15 +7,6 @@ from model.text_processing import article, list_article
 from bs4 import BeautifulSoup
 
 
-def internet_connection(func):
-    def wrapper(*arg, **keyword):
-        try:
-            func(*arg, **keyword)
-        except Exception:
-            return False
-    return wrapper
-
-
 def find_end_num(text):
     end_num_pattern = r'<a href="query_results\.asp\?pagenum=[\d]+">В&nbsp;конец</a>'
     st = findall(end_num_pattern, text)[0]
@@ -74,6 +65,15 @@ class site_connection:
     num_page = 1
 
     block_site = 'Из-за нарушения правил пользования сайтом eLIBRARY.RU'
+
+    def internet_connection(self, func):
+        def wrapper(*arg, **keyword):
+            try:
+                func(*arg, **keyword)
+            except req.exceptions.ConnectionError:
+                self.state_code = -1
+
+        return wrapper
 
     @internet_connection
     def __init__(self):
