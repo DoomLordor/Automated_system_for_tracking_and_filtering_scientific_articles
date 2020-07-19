@@ -23,7 +23,7 @@ def find_id(text):
     for id_article in temp:
         if id_article.attrs.get('id') is not None:
             id_ar = findall(r'\d+', id_article.attrs.get('id'))
-            all_id.append(id_ar)
+            all_id.append(id_ar[0])
     return all_id
 
 
