@@ -9,6 +9,12 @@ stop_word_path = 'setting\\stop_word.sd'
 
 stop_word_text_file_path = 'setting\\stop_word.txt'
 
+journal_type = ['статья в журнале - научная статья', 'статья в журнале - материалы конференции',
+                 'статья в журнале - обзорная статья', 'статья в журнале - редакторская заметка',
+                 'статья в журнале - краткое сообщение']
+conf_type = ['статья в сборнике трудов конференции', 'сборник трудов конференции', 'тезисы доклада на конференции',
+              'статья в сборнике статей', 'сборник тезисов конференции']
+
 
 class list_article(list):
     def __init__(self, iterable=None):
@@ -50,14 +56,8 @@ class list_article(list):
 
 
 class article:
-    _journal_type = ['статья в журнале - научная статья', 'статья в журнале - материалы конференции',
-                     'статья в журнале - обзорная статья', 'статья в журнале - редакторская заметка',
-                     'статья в журнале - краткое сообщение']
-    _conf_type = ['статья в сборнике трудов конференции', 'сборник трудов конференции', 'тезисы доклада на конференции',
-                  'статья в сборнике статей', 'сборник тезисов конференции']
 
-    def __init__(self, text_publication=None, address=None):
-        self._text = None
+    def __init__(self, text_publication=None, address=None, site_tupe=None):
         self.address = None
         self.name = None
         self.keywords = None
@@ -65,23 +65,22 @@ class article:
         self.authors = None
         self.article_type = None
         self.journal = None
+        self.year = None
         self.word_bag = None
         if text_publication is not None and address is not None:
-            self.search_on_page(text_publication, address)
+            if site_tupe == 'elibrary':
+                self.search_on_elibrary_page(text_publication, address)
 
-    def search_on_page(self, text_publication, address):
+    def search_on_elibrary_page(self, text_publication, address):
         self.address = address
-        self._text = text_publication
-        self._find_name()
-        self._find_keywords()
-        self._find_annotation()
-        self._find_authors()
-        self._find_article_type()
-        if self.article_type in self._journal_type:
-            self._find_journal()
-        elif self.article_type in self._conf_type:
-            self._find_conf()
-        del self._text
+        res = elibrary_find_text(text_publication)
+        self.name = res[0]
+        self.keywords = res[1]
+        self.annotation = res[2]
+        self.authors = res[3]
+        self.article_type = res[4]
+        self.journal = res[5]
+        self.year = res[6]
         self.word_bag_create()
 
     def word_bag_create(self, morph_analyzer=None, list_stop_words=None):
@@ -90,70 +89,72 @@ class article:
         name_dict = lemmatization_text(self.name)
         self.word_bag = ta.sum_dict(annotation_dict, keywords_dict, name_dict)
 
-    def _find_name(self):
-        i = self._text.find('<title>')
-        j = self._text.find('</title>', i)
-        self.name = self._text[i + 7: j]
 
-    def _find_keywords(self):
-        all_keywords = []
-        i = self._text.find('<a href=\"keyword_items.asp?id=')
-        text = self._text
-        while i > 0:
-            text = text[i:]
-            k = text.find('">')
-            j = text.find('</a>', k)
-            all_keywords.append(text[k + 2: j])
-            i = text.find('<a href=\"keyword_items.asp?id=', j)
-        self.keywords = ' '.join(all_keywords)
-
-    def _find_annotation(self):
-        if 'АННОТАЦИЯ' in self._text:
-            i = self._text.find(
-                '<div id="abstract1" style="width:504px; border:0;'
-                + ' margin:0; padding:0; text-align:left;"><p align=justify>')
-            j = self._text.find('</div>', i)
-            self.annotation = self._text[i + 106: j]
-        else:
-            self.annotation = ''
-
-    def _find_authors(self):
-        all_author = {}
-        i = self._text.find('<a href=\'author_items.asp?authorid=')
-        text = self._text
-        while i > 0:
-            text = text[i:]
-            k = text.find("' title='Список публикаций этого автора'>")
-            j = text.find('</a>', k)
-            if all_author.get(text[35:k]) is None:
-                name = text[k + 41: j]
-                name = name.replace('<b>', '')
-                name = name.replace('</b>', '')
-                all_author[text[35:k]] = name
-            i = text.find('<a href=\'author_items.asp?authorid=', j)
-        self.authors = all_author
-
-    def _find_article_type(self):
-        i = self._text.find('Тип:&nbsp;<font color=#00008f>')
-        j = self._text.find('</font>', i)
-        self.article_type = self._text[i + 30: j]
-
-    def _find_journal(self):
-        i = self._text.find('\n<a href="contents.asp?id=')
-        k = self._text.find('" title="Оглавления выпусков этого журнала">', i)
-        j = self._text.find('</a>', k)
-        name = self._text[k + 44: j]
+def elibrary_find_text(text):
+    res = []
+    # Название статьи
+    i = text.find('<title>')
+    j = text.find('</title>', i)
+    res.append(text[i + 7: j])
+    # ключевые слова
+    all_keywords = []
+    i = text.find('<a href=\"keyword_items.asp?id=')
+    temp_text = text
+    while i > 0:
+        temp_text = temp_text[i:]
+        k = temp_text.find('">')
+        j = temp_text.find('</a>', k)
+        all_keywords.append(temp_text[k + 2: j])
+        i = temp_text.find('<a href=\"keyword_items.asp?id=', j)
+    res.append(' '.join(all_keywords))
+    # аннотация
+    if 'АННОТАЦИЯ' in text:
+        i = text.find(
+            '<div id="abstract1" style="width:504px; border:0;'
+            + ' margin:0; padding:0; text-align:left;"><p align=justify>')
+        j = text.find('</div>', i)
+        res.append(text[i + 106: j])
+    else:
+        res.append('')
+    # поиск авторов
+    all_author = {}
+    i = text.find('<a href=\'author_items.asp?authorid=')
+    temp_text = text
+    while i > 0:
+        temp_text = temp_text[i:]
+        k = temp_text.find("' title='Список публикаций этого автора'>")
+        j = temp_text.find('</a>', k)
+        if all_author.get(temp_text[35:k]) is None:
+            name = temp_text[k + 41: j]
+            name = name.replace('<b>', '')
+            name = name.replace('</b>', '')
+            all_author[text[35:k]] = name
+        i = text.find('<a href=\'author_items.asp?authorid=', j)
+    res.append(all_author)
+    # тип статьи
+    i = text.find('Тип:&nbsp;<font color=#00008f>')
+    j = text.find('</font>', i)
+    res.append(text[i + 30: j])
+    if res[-1] in journal_type:
+        i = text.find('\n<a href="contents.asp?id=')
+        k = text.find('" title="Оглавления выпусков этого журнала">', i)
+        j = text.find('</a>', k)
+        name = text[k + 44: j]
         name = name.replace('\n', '').replace('\r', '')
-        self.journal = [self._text[i + 26: k], name]
-
-    def _find_conf(self):
-        if 'ИСТОЧНИК:' in self._text:
-            i = self._text.find('<a href="item.asp?id=')
-            k = self._text.find('">', i)
-            j = self._text.find('</a>', k)
-            self.journal = [self._text[i + 21: k], self._text[k + 2: j]]
+        res.append([text[i + 26: k], name])
+    elif res[-1] in conf_type:
+        if 'ИСТОЧНИК:' in text:
+            i = text.find('<a href="item.asp?id=')
+            k = text.find('">', i)
+            j = text.find('</a>', k)
+            res.append([text[i + 21: k], text[k + 2: j]])
         else:
-            self.journal = ['', '']
+            res.append(['', ''])
+    # поиск года
+    i = text.find('Год:')
+    j = text.find('</font>', i)
+    res.append(text[i + 27:j])
+    return res
 
 
 class morph:

@@ -165,7 +165,8 @@ class site_connection:
             return False
 
     @internet_connection
-    def getting_these_articles(self, url, page_start=1, page_end=1000, path=None):
+    def getting_these_articles(self, url="https://elibrary.ru/query_results.asp",
+                               page_start=1, page_end=1000, path=None):
         if page_end > 1000:
             page_end = 1000
 
