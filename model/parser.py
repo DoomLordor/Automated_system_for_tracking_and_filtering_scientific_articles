@@ -1,6 +1,7 @@
 from time import sleep
 from re import findall
 import requests as req
+from pickle import dump
 from random import random
 from model.text_processing import article, list_article
 from bs4 import BeautifulSoup
@@ -163,6 +164,8 @@ class site_connection:
             self.state_code = -2
             return False
 
+    @internet_connection
+    def getting_these_articles(self, url, page_start=1, page_end=1000, path=None):
         if page_end > 1000:
             page_end = 1000
 
@@ -188,6 +191,11 @@ class site_connection:
             if self.state_code:
                 return False
             self.num_page = i
+            if path is not None:
+                with open(path, 'rb') as f:
+                    dump(self.articles, f)
+            print('Big sleep')
+            sleep(150)
 
     @internet_connection
     def page_parser(self, page_text):
