@@ -46,8 +46,7 @@ class site_connection:
                              -3: 'Turing_Test',
                              -4: 'User_error',
                              -5: 'Server_Error',
-                             -6: 'search_option_data is None',
-                             -7: 'Site block program'}
+                             -6: 'Site block program'}
 
     _issues_params_list = ['all', 'm1', 'm3', 'm6', 'm12']
 
