@@ -220,4 +220,4 @@ class site_connection:
 
     def _check_block_site(self, text_site):
         if self.block_site in text_site:
-            self.state_code = -7
+            self.state_code = -6
