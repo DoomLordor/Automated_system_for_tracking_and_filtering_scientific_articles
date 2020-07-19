@@ -3,6 +3,7 @@ from re import findall
 import requests as req
 from random import random
 from model.text_processing import article, list_article
+from bs4 import BeautifulSoup
 
 
 def internet_connection(func):
@@ -25,15 +26,17 @@ def find_end_num(text):
 
 
 def find_id(text):
-    id_pattern = r'<tr valign=middle bgcolor=#f5f5f5 id="a[\d]+">'
-    id_pattern2 = r'<tr valign=middle id="arw[\d]+">'
-    all_id = findall(id_pattern, text)
-    for i, val in enumerate(all_id):
-        all_id[i] = val[39:-2]
-    all_id2 = findall(id_pattern2, text)
-    for i, val in enumerate(all_id2):
-        all_id2[i] = val[25:-2]
-    return all_id or all_id2
+    soup = BeautifulSoup(text, 'lxml')
+    all_id = []
+    temp = soup.find_all('td', valign="top", align="left")
+    for id_article in temp:
+        if 'href' in str(id_article):
+            if len(id_article.contents) > 1:
+                if type(id_article.contents[1]).__name__ is 'Tag':
+                    if id_article.contents[1].attrs.get('href') is not None:
+                        if '/item.asp?id=' in id_article.contents[1].attrs.get('href'):
+                            all_id.append(id_article.contents[1].attrs.get('href')[13:])
+    return all_id
 
 
 class site_connection:
