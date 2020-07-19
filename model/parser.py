@@ -156,13 +156,13 @@ class site_connection:
         self._check_block_site(site.text)
 
         if self.state_code:
-            return False
+            return
 
         self._end_num = find_end_num(site.text)
 
         if not self._end_num:
             self.state_code = -2
-            return False
+            return
 
     @internet_connection
     def getting_these_articles(self, url="https://elibrary.ru/query_results.asp",
@@ -180,7 +180,7 @@ class site_connection:
             self._check_block_site(site.text)
             self._session_status_code_check(site.status_code)
             if self.state_code:
-                break
+                return
             sleep(random() * 3)
             self.page_parser(site.text)
             if self.state_code:
