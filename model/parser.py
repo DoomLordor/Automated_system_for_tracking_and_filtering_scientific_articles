@@ -187,7 +187,7 @@ class site_connection:
                 return False
             self.num_page = i
             if path is not None:
-                with open(path, 'rb') as f:
+                with open(path, 'wb') as f:
                     dump(self.articles, f)
             if self._end_num != i:
                 print('Big sleep')
