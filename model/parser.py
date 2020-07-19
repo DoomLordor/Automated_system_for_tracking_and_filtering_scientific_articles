@@ -29,14 +29,11 @@ def find_end_num(text):
 def find_id(text):
     soup = BeautifulSoup(text, 'lxml')
     all_id = []
-    temp = soup.find_all('td', valign="top", align="left")
+    temp = soup.find_all('tr', valign="middle")
     for id_article in temp:
-        if 'href' in str(id_article):
-            if len(id_article.contents) > 1:
-                if type(id_article.contents[1]).__name__ is 'Tag':
-                    if id_article.contents[1].attrs.get('href') is not None:
-                        if '/item.asp?id=' in id_article.contents[1].attrs.get('href'):
-                            all_id.append(id_article.contents[1].attrs.get('href')[13:])
+        if id_article.attrs.get('id') is not None:
+            id_ar = findall(r'\d+', id_article.attrs.get('id'))
+            all_id.append(id_ar)
     return all_id
 
 
