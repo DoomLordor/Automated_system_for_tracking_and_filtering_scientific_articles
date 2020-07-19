@@ -183,8 +183,6 @@ class site_connection:
                 return
             sleep(random() * 3)
             self.page_parser(site.text)
-            if self.state_code:
-                return False
             self.num_page = i
             if path is not None:
                 with open(path, 'wb') as f:
