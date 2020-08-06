@@ -7,6 +7,15 @@ from model.text_processing import article, list_article
 from bs4 import BeautifulSoup
 
 
+def internet_connection(func):
+    def wrapper(*arg, **keyword):
+        try:
+            func(*arg, **keyword)
+        except req.exceptions.ConnectionError:
+            arg[0].state_code = -1
+    return wrapper
+
+
 def find_end_num(text):
     st = findall(r'<a href="query_results\.asp\?pagenum=[\d]+">В&nbsp;конец</a>', text)[0]
     i = st.find('<a href="query_results.asp?pagenum=')
@@ -66,15 +75,6 @@ class elibrary_connection:
     block_site = 'Из-за нарушения правил пользования сайтом eLIBRARY.RU'
 
     captcha = 'Тест Тьюринга'
-
-    def internet_connection(self, func):
-        def wrapper(*arg, **keyword):
-            try:
-                func(*arg, **keyword)
-            except req.exceptions.ConnectionError:
-                self.state_code = -1
-
-        return wrapper
 
     @internet_connection
     def __init__(self):
