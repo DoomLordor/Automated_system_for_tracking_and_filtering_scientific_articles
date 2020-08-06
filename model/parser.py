@@ -170,7 +170,7 @@ class elibrary_connection:
         if page_end > 1000:
             page_end = 1000
 
-        if self._end_num > page_end:
+        if self._end_num > page_end or self._end_num == 0:
             self._end_num = page_end
 
         for i in range(page_start, self._end_num + 1):
