@@ -152,6 +152,8 @@ def elibrary_find_text(text):
             res.append([text[i + 21: k], text[k + 2: j]])
         else:
             res.append(['', ''])
+    else:
+        res.append(['', ''])
     # поиск года
     i = text.find('Год')
     j = text.find('</font>', i)
