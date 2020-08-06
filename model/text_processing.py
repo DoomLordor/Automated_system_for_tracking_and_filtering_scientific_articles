@@ -153,9 +153,9 @@ def elibrary_find_text(text):
         else:
             res.append(['', ''])
     # поиск года
-    i = text.find('Год:')
+    i = text.find('Год')
     j = text.find('</font>', i)
-    res.append(text[i + 30:j])
+    res.append(text[j - 4:j])
     return res
 
 
